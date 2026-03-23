@@ -1,0 +1,107 @@
+version: "3.9"
+
+# HakDel — Lab VM containers
+# Each lab is an isolated Ubuntu 22.04 container with:
+#   - SSH on a fixed host port
+#   - A planted flag.txt with restricted permissions (400)
+#   - Lab challenge files mounted from ./labs/<slug>/
+#
+# Usage:
+#   docker-compose up -d                     # start all labs
+#   docker-compose up -d lab-recon-basics    # start one lab
+#   ssh labuser@localhost -p 2201            # connect to lab 1
+#
+# Add new labs by copying a service block and incrementing the port.
+
+x-lab-defaults: &lab-defaults
+  image: ubuntu:22.04
+  restart: unless-stopped
+  networks:
+    - labs
+
+services:
+
+  # ── Lab 1: Recon Basics ───────────────────────────────────────────────────
+  lab-recon-basics:
+    <<: *lab-defaults
+    container_name: hakdel-lab-recon-basics
+    hostname: recon-basics
+    ports:
+      - "2201:22"
+    environment:
+      LAB_USER: labuser
+      LAB_PASS: "Hakd3l@Lab1"
+      FLAG: "flag{recon_m4st3r_2024}"
+    volumes:
+      - ./labs/recon-basics:/opt/lab:ro
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-server &&
+        mkdir /run/sshd &&
+        useradd -m -s /bin/bash $$LAB_USER &&
+        echo "$$LAB_USER:$$LAB_PASS" | chpasswd &&
+        install -d -m 700 -o $$LAB_USER /home/$$LAB_USER/.flag &&
+        echo "$$FLAG" > /home/$$LAB_USER/.flag/flag.txt &&
+        chown $$LAB_USER /home/$$LAB_USER/.flag/flag.txt &&
+        chmod 400 /home/$$LAB_USER/.flag/flag.txt &&
+        /usr/sbin/sshd -D
+      "
+
+  # ── Lab 2: Web Headers ────────────────────────────────────────────────────
+  lab-web-headers:
+    <<: *lab-defaults
+    container_name: hakdel-lab-web-headers
+    hostname: web-headers
+    ports:
+      - "2202:22"
+    environment:
+      LAB_USER: labuser
+      LAB_PASS: "Hakd3l@Lab2"
+      FLAG: "flag{h3aders_sp34k_v0lumes}"
+    volumes:
+      - ./labs/web-headers:/opt/lab:ro
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-server &&
+        mkdir /run/sshd &&
+        useradd -m -s /bin/bash $$LAB_USER &&
+        echo "$$LAB_USER:$$LAB_PASS" | chpasswd &&
+        install -d -m 700 -o $$LAB_USER /home/$$LAB_USER/.flag &&
+        echo "$$FLAG" > /home/$$LAB_USER/.flag/flag.txt &&
+        chown $$LAB_USER /home/$$LAB_USER/.flag/flag.txt &&
+        chmod 400 /home/$$LAB_USER/.flag/flag.txt &&
+        /usr/sbin/sshd -D
+      "
+
+  # ── Lab 3: SQL Injection ──────────────────────────────────────────────────
+  lab-sqli:
+    <<: *lab-defaults
+    container_name: hakdel-lab-sqli
+    hostname: sqli-lab
+    ports:
+      - "2203:22"
+    environment:
+      LAB_USER: labuser
+      LAB_PASS: "Hakd3l@Lab3"
+      FLAG: "flag{sqli_byp4ss_pr0}"
+    volumes:
+      - ./labs/sqli:/opt/lab:ro
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-server &&
+        mkdir /run/sshd &&
+        useradd -m -s /bin/bash $$LAB_USER &&
+        echo "$$LAB_USER:$$LAB_PASS" | chpasswd &&
+        install -d -m 700 -o $$LAB_USER /home/$$LAB_USER/.flag &&
+        echo "$$FLAG" > /home/$$LAB_USER/.flag/flag.txt &&
+        chown $$LAB_USER /home/$$LAB_USER/.flag/flag.txt &&
+        chmod 400 /home/$$LAB_USER/.flag/flag.txt &&
+        /usr/sbin/sshd -D
+      "
+
+networks:
+  labs:
+    driver: bridge

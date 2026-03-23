@@ -1,0 +1,3 @@
+-- HakDel seed data: sample labs
+-- Extract the INSERT INTO labs (...) block from ../schema.sql and paste here.
+-- Run: mysql -u root -p hakdel < labs.sql

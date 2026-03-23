@@ -1,0 +1,3 @@
+-- HakDel seed data: CEH quiz questions
+-- Extract the INSERT INTO quiz_questions (...) block from ../schema.sql and paste here.
+-- Run: mysql -u root -p hakdel < quiz_questions.sql

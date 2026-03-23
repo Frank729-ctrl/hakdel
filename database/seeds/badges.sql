@@ -1,0 +1,3 @@
+-- HakDel seed data: badges
+-- Extract the INSERT INTO badges (...) block from ../schema.sql and paste here.
+-- Run: mysql -u root -p hakdel < badges.sql
